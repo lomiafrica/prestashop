@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>lomi</name>
+    <displayName><![CDATA[lomi.]]></displayName>
+    <version><![CDATA[2.0.0]]></version>
+    <description><![CDATA[Accept payments via lomi. hosted checkout. PrestaShop 1.7+.]]></description>
+    <author><![CDATA[lomi.]]></author>
+    <tab><![CDATA[payments_gateways]]></tab>
+    <confirmUninstall><![CDATA[Remove lomi. configuration and data?]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>1</need_instance>
+    <limited_countries></limited_countries>
+</module>

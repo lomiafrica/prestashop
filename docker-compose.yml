@@ -12,7 +12,7 @@ services:
     depends_on:
       - mysql
     build: .
-    image: paystack-prestashop-image
+    image: lomi-prestashop-image
     ports:
       - "8000:80"
     env_file: local.env
