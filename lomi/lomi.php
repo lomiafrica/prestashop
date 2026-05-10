@@ -122,11 +122,6 @@ class Lomi extends PaymentModule
         }
         Configuration::updateValue('PS_OS_LOMI', (int) $newState->id);
 
-        $img = dirname(__FILE__) . '/logo.png';
-        if (is_file($img)) {
-            @copy($img, _PS_IMG_DIR_ . 'tmp/order_state_mini_' . (int) $newState->id . '_1.png');
-        }
-
         return true;
     }
 
@@ -381,7 +376,7 @@ class Lomi extends PaymentModule
         $this->context->smarty->assign(
             array(
                 'lomi_webhook_url' => $this->context->link->getModuleLink('lomi', 'webhook', array(), true),
-                'lomi_module_logo' => __PS_BASE_URI__ . 'modules/' . $this->name . '/logo.png',
+                'lomi_module_logo' => __PS_BASE_URI__ . 'modules/' . $this->name . '/lomi-placeholder.svg',
             )
         );
         $this->_html .= $this->display(__FILE__, 'views/templates/hook/infos.tpl');
@@ -408,7 +403,7 @@ class Lomi extends PaymentModule
         $newOption->setCallToActionText($this->trans('Pay with lomi.', array(), 'Modules.Lomi.Shop'))
             ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
             ->setAdditionalInformation($this->fetch('module:lomi/views/templates/hook/intro.tpl'))
-            ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/card-logos.png'));
+            ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/lomi-placeholder.svg'));
 
         return array($newOption);
     }

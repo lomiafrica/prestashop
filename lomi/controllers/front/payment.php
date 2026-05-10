@@ -26,7 +26,6 @@ class LomiPaymentModuleFrontController extends ModuleFrontController
         $this->context->smarty->assign(array(
             'back_url' => $this->context->link->getPageLink('order', true, null, 'step=3'),
             'confirm_url' => $this->context->link->getModuleLink('lomi', 'validation', array(), true),
-            'image_url' => $this->module->getPathUri() . 'card-logos.png',
             'cust_currency' => $cart->id_currency,
             'currencies' => $this->module->getCurrency((int) $cart->id_currency),
             'total' => $total,
