@@ -21,8 +21,8 @@ class LomiApiClient
     public function __construct($testMode, $secretKey)
     {
         $this->baseUrl = $testMode
-            ? 'https://sandbox.api.lomi.africa/v1'
-            : 'https://api.lomi.africa/v1';
+            ? 'https://sandbox.api.lomi.africa'
+            : 'https://api.lomi.africa';
         $this->secretKey = trim((string) $secretKey);
     }
 
