@@ -416,52 +416,68 @@ class Lomi extends PaymentModule
             return false;
         }
 
-        $orderId = $this->getOrderIdByCartId((int) $cart->id);
-        if ($orderId) {
-            $order = new Order($orderId);
-            if ((int) $order->getCurrentState() === $osPaid) {
-                return true;
+        $db = Db::getInstance();
+        $lockName = 'lomi_order_cart_' . (int) $cart->id;
+        $lockAcquired = (int) $db->getValue(
+            'SELECT GET_LOCK(\'' . pSQL($lockName) . '\', 10)'
+        );
+
+        if ($lockAcquired !== 1) {
+            return false;
+        }
+
+        try {
+            $orderId = $this->getOrderIdByCartId((int) $cart->id);
+            if ($orderId) {
+                $order = new Order($orderId);
+                if ((int) $order->getCurrentState() === $osPaid) {
+                    return true;
+                }
             }
+
+            $status = strtolower((string) (isset($session->status) ? $session->status : ''));
+            if ($status !== 'completed') {
+                return false;
+            }
+
+            $expectedMinor = $this->getAmountMinorUnits($cart);
+            $paidMinor = isset($session->amount) ? (int) $session->amount : 0;
+            if ($paidMinor !== $expectedMinor) {
+                return false;
+            }
+
+            $currency = new Currency((int) $cart->id_currency);
+            $sessCur = isset($session->currency_code) ? strtoupper((string) $session->currency_code) : '';
+            if ($sessCur !== '' && $sessCur !== strtoupper($currency->iso_code)) {
+                return false;
+            }
+
+            $extraVars = array(
+                'transaction_id' => isset($session->checkout_session_id) ? (string) $session->checkout_session_id : '',
+                'payment_method' => 'lomi.',
+            );
+
+            $totalMajor = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            $ref = isset($session->checkout_session_id) ? (string) $session->checkout_session_id : '';
+
+            $this->validateOrder(
+                (int) $cart->id,
+                $osPaid,
+                $totalMajor,
+                $this->displayName,
+                $this->trans('lomi. checkout session: ', array(), 'Modules.Lomi.Shop') . $ref,
+                $extraVars,
+                (int) $cart->id_currency,
+                false,
+                $customer->secure_key
+            );
+
+            return true;
+        } finally {
+            $db->getValue(
+                'SELECT RELEASE_LOCK(\'' . pSQL($lockName) . '\')'
+            );
         }
-
-        $status = strtolower((string) (isset($session->status) ? $session->status : ''));
-        if ($status !== 'completed') {
-            return false;
-        }
-
-        $expectedMinor = $this->getAmountMinorUnits($cart);
-        $paidMinor = isset($session->amount) ? (int) $session->amount : 0;
-        if ($paidMinor !== $expectedMinor) {
-            return false;
-        }
-
-        $currency = new Currency((int) $cart->id_currency);
-        $sessCur = isset($session->currency_code) ? strtoupper((string) $session->currency_code) : '';
-        if ($sessCur !== '' && $sessCur !== strtoupper($currency->iso_code)) {
-            return false;
-        }
-
-        $extraVars = array(
-            'transaction_id' => isset($session->checkout_session_id) ? (string) $session->checkout_session_id : '',
-            'payment_method' => 'lomi.',
-        );
-
-        $totalMajor = (float) $cart->getOrderTotal(true, Cart::BOTH);
-        $ref = isset($session->checkout_session_id) ? (string) $session->checkout_session_id : '';
-
-        $this->validateOrder(
-            (int) $cart->id,
-            $osPaid,
-            $totalMajor,
-            $this->displayName,
-            $this->trans('lomi. checkout session: ', array(), 'Modules.Lomi.Shop') . $ref,
-            $extraVars,
-            (int) $cart->id_currency,
-            false,
-            $customer->secure_key
-        );
-
-        return true;
     }
 
     protected function _postProcess()
