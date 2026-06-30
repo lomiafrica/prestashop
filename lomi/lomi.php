@@ -535,10 +535,9 @@ class Lomi extends PaymentModule
         }
 
         $newOption = new PaymentOption();
-        $newOption->setCallToActionText($this->trans('Pay with lomi.', array(), 'Modules.Lomi.Shop'))
+        $newOption->setCallToActionText($this->trans('lomi.', array(), 'Modules.Lomi.Shop'))
             ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true))
-            ->setAdditionalInformation($this->renderCheckoutBranding())
-            ->setLogo(Media::getMediaPath(_PS_MODULE_DIR_ . $this->name . '/views/img/pay-with-lomi.webp'));
+            ->setAdditionalInformation($this->renderCheckoutBranding());
 
         return array($newOption);
     }
