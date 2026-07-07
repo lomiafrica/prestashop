@@ -24,7 +24,7 @@ Checkout displays a **lomi. branding card** (pay-with image + payment method ico
 - Store currency **XOF**, **USD**, or **EUR** (default shop currency or cart currency)
 - **HTTPS** in production (required for webhooks and secure return URLs)
 - At least one **shipping carrier** configured (standard PrestaShop checkout requirement)
-- lomi. account — [dashboard.lomi.africa](https://dashboard.lomi.africa)
+- lomi. account, [dashboard.lomi.africa](https://dashboard.lomi.africa)
 
 ## Installation
 
@@ -36,8 +36,8 @@ Checkout displays a **lomi. branding card** (pay-with image + payment method ico
 
 ### Enable payment for your currency
 
-1. **International → Localization → Currencies** — ensure **EUR**, **USD**, or **XOF** is active.
-2. **Payment → Preferences** (or **Payment → Payment methods** depending on your PrestaShop version) — under currency restrictions, allow **lomi.** for the currencies you use.
+1. **International → Localization → Currencies**: ensure **EUR**, **USD**, or **XOF** is active.
+2. **Payment → Preferences** (or **Payment → Payment methods** depending on your PrestaShop version), under currency restrictions, allow **lomi.** for the currencies you use.
 
 If the secret key is missing or the currency is not supported, **lomi.** will not appear at checkout.
 
@@ -45,7 +45,7 @@ If the secret key is missing or the currency is not supported, **lomi.** will no
 
 **Modules → Module Manager → search `lomi` → Configure**
 
-The configuration page shows your **webhook URL** — copy it into the lomi. dashboard.
+The configuration page shows your **webhook URL**: copy it into the lomi. dashboard.
 
 | Setting | Description |
 |---------|-------------|
@@ -86,11 +86,11 @@ Always click **Save** after pasting secrets. Re-paste the **full** value when up
 
 3. Copy the **signing secret** (`whsec_…`) into the matching field in the module (test or live).
 
-4. Send a **Test webhook** from the dashboard — expect **HTTP 200** (empty response body is normal for test events).
+4. Send a **Test webhook** from the dashboard, expect **HTTP 200** (empty response body is normal for test events).
 
 **Important:** The webhook signing secret is **not** your API secret key (`lomi_sk_…`). Each webhook endpoint has its own `whsec_…`. Test and live webhooks use different secrets.
 
-Webhook headers: `X-Lomi-Signature`, `X-Lomi-Event` — see [webhooks documentation](https://docs.lomi.africa/build/webhooks).
+Webhook headers: `X-Lomi-Signature`, `X-Lomi-Event`: see [webhooks documentation](https://docs.lomi.africa/build/webhooks).
 
 ### Supported currencies
 
@@ -129,7 +129,7 @@ The webhook is the **reliable** path if the customer closes the browser before r
 
 | Test | Expected result |
 |------|-----------------|
-| Dashboard **Test webhook** | **200** — empty body (event is not `PAYMENT_SUCCEEDED`) |
+| Dashboard **Test webhook** | **200**: empty body (event is not `PAYMENT_SUCCEEDED`) |
 | Real sandbox payment | Webhook **PAYMENT_SUCCEEDED** → **200**; order status **Paid via lomi.** |
 
 More test cards: [Sandbox payments](https://docs.lomi.africa/start/sandbox-payments).
@@ -161,7 +161,7 @@ More test cards: [Sandbox payments](https://docs.lomi.africa/start/sandbox-payme
 
 ### Webhook returns 200 but nothing happens
 
-Test events (`test.webhook`) return **200** with no body by design — they do not create orders. Place a real sandbox payment to trigger **`PAYMENT_SUCCEEDED`**.
+Test events (`test.webhook`) return **200** with no body by design, they do not create orders. Place a real sandbox payment to trigger **`PAYMENT_SUCCEEDED`**.
 
 ### Are refunds supported from PrestaShop admin?
 
@@ -176,12 +176,12 @@ Uninstall the old gateway if it conflicts, then install lomi. and re-enter API k
 | Symptom | Likely cause | Action |
 |---------|--------------|--------|
 | Webhook **401** | Wrong `whsec_…` or test/live mismatch | Copy secret from the webhook endpoint matching **Test mode** |
-| Webhook **405** | GET request (browser) | Webhooks must be **POST** — use dashboard test or lomi. delivery |
+| Webhook **405** | GET request (browser) | Webhooks must be **POST**: use dashboard test or lomi. delivery |
 | **200** on test webhook, no order | Normal for test events | Complete a sandbox payment |
 | “No carrier available” | PrestaShop shipping | Configure a carrier and delivery zone |
 | Payment OK on lomi., order missing | No webhook | Fix webhook URL and secret first |
 
-Check logs: **Advanced parameters → Logs** — filter by module `lomi` or search for `lomi.`.
+Check logs: **Advanced parameters → Logs**: filter by module `lomi` or search for `lomi.`.
 
 ## French guide
 
@@ -195,4 +195,4 @@ Merchant documentation in French: **[docs/GUIDE.fr.md](docs/GUIDE.fr.md)**.
 
 ## License
 
-MIT — see repository license file if present.
+MIT, see repository license file if present.

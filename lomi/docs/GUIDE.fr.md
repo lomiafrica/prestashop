@@ -35,8 +35,8 @@ Une **carte de marque lomi.** (image « Pay with lomi. » + icônes des moyens d
 
 ### Activer le paiement pour votre devise
 
-1. **International → Localisation → Devises** — activez **EUR**, **USD** ou **XOF**.
-2. **Paiement → Préférences** (ou **Paiement → Moyens de paiement** selon la version) — autorisez **lomi.** pour les devises utilisées.
+1. **International → Localisation → Devises**: activez **EUR**, **USD** ou **XOF**.
+2. **Paiement → Préférences** (ou **Paiement → Moyens de paiement** selon la version), autorisez **lomi.** pour les devises utilisées.
 
 Sans clé secrète ou avec une devise non supportée, **lomi.** n’apparaît pas au checkout.
 
@@ -112,7 +112,7 @@ Le **webhook** est le chemin fiable si le client ferme le navigateur avant de re
 
 | Test | Résultat |
 |------|----------|
-| Bouton « Test webhook » dashboard | **200** — corps vide (normal) |
+| Bouton « Test webhook » dashboard | **200**: corps vide (normal) |
 | Vrai paiement sandbox | Webhook **PAYMENT_SUCCEEDED** → **200** ; statut **Payé via lomi.** |
 
 Autres cartes : [Sandbox payments](https://docs.lomi.africa/start/sandbox-payments).
@@ -134,7 +134,7 @@ Autres cartes : [Sandbox payments](https://docs.lomi.africa/start/sandbox-paymen
 | Commande non créée après paiement | Webhook absent ou session pas `completed` | Corriger webhook en priorité |
 | « Aucun transporteur » | Livraison non configurée | Configurer transporteur + zone |
 
-Consultez les logs : **Paramètres avancés → Logs** — filtrez sur `lomi`.
+Consultez les logs : **Paramètres avancés → Logs**: filtrez sur `lomi`.
 
 ## Limites connues
 

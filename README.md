@@ -1,4 +1,4 @@
-# PrestaShop — lomi. payment module
+# PrestaShop, lomi. payment module
 
 The installable module lives in [`lomi/`](lomi/). It connects to the lomi. API for hosted checkout sessions.
 
