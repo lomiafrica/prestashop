@@ -47,6 +47,46 @@ class LomiApiClient
     }
 
     /**
+     * @return array{ok:bool,data?:object,error?:string,http_code?:int}
+     */
+    public function getMe()
+    {
+        return $this->request('GET', '/me', null);
+    }
+
+    /**
+     * @param int $httpCode
+     * @param string $detail
+     * @param object|null $json
+     * @param bool $testMode
+     * @return string
+     */
+    public static function formatMerchantFacingError($httpCode, $detail, $json = null, $testMode = true)
+    {
+        $reference = '';
+        if (is_object($json) && !empty($json->request_id)) {
+            $reference = ' (Reference: ' . (string) $json->request_id . ')';
+        } elseif (is_object($json) && !empty($json->correlation_id)) {
+            $reference = ' (Reference: ' . (string) $json->correlation_id . ')';
+        }
+
+        $modeLabel = $testMode ? 'test' : 'live';
+
+        switch ((int) $httpCode) {
+            case 401:
+                return 'Invalid secret API key for ' . $modeLabel . ' mode. Copy the key from Dashboard → Developers → API keys and ensure test mode matches your keys.' . $reference;
+            case 403:
+                return 'This API key cannot perform this action. Check key permissions in the lomi. dashboard.' . $reference;
+            case 404:
+                return 'lomi. could not find this resource. Confirm test/live mode matches the keys in your dashboard.' . $reference;
+            case 422:
+                return 'Payment could not be created: ' . $detail . '.' . $reference;
+            default:
+                return 'lomi. returned an error (' . (int) $httpCode . '): ' . $detail . '.' . $reference . ' See docs.lomi.africa/build/ecommerce-extensions/prestashop.';
+        }
+    }
+
+    /**
      * @param string $method
      * @param string $path
      * @param array|null $body
@@ -96,7 +136,11 @@ class LomiApiClient
                 $msg = (string) $json->message;
             }
 
-            return array('ok' => false, 'error' => $msg, 'http_code' => $httpCode);
+            return array(
+                'ok' => false,
+                'error' => self::formatMerchantFacingError($httpCode, $msg, is_object($json) ? $json : null, strpos($this->baseUrl, 'sandbox') !== false),
+                'http_code' => $httpCode,
+            );
         }
 
         $data = self::normalizeSessionPayload($json);

@@ -512,12 +512,86 @@ class Lomi extends PaymentModule
             array(
                 'lomi_webhook_url' => $this->context->link->getModuleLink('lomi', 'webhook', array(), true),
                 'lomi_module_logo' => __PS_BASE_URI__ . 'modules/' . $this->name . '/views/img/pay-with-lomi.webp',
+                'lomi_setup_health' => $this->getSetupHealthChecks(),
             )
         );
+        $this->_html .= $this->display(__FILE__, 'views/templates/hook/setup_health.tpl');
         $this->_html .= $this->display(__FILE__, 'views/templates/hook/infos.tpl');
         $this->_html .= $this->renderForm();
 
         return $this->_html;
+    }
+
+    /**
+     * @return array<int, array{label:string,status:string,message:string}>
+     */
+    protected function getSetupHealthChecks()
+    {
+        $testMode = (int) Configuration::get('LOMI_MODE') === 1;
+        $secret = trim($this->getSecretKey());
+        $webhookSecret = trim($this->getWebhookSecret());
+        $currency = Currency::getCurrency((int) Configuration::get('PS_CURRENCY_DEFAULT'));
+        $currencyIso = is_array($currency) && !empty($currency['iso_code'])
+            ? strtoupper((string) $currency['iso_code'])
+            : '';
+        $allowedCurrencies = array('XOF', 'USD', 'EUR');
+        $isHttps = Tools::usingSecureMode();
+
+        $checks = array(
+            array(
+                'label' => $this->trans('API secret key', array(), 'Modules.Lomi.Admin'),
+                'status' => $secret !== '' ? 'ok' : 'error',
+                'message' => $secret !== ''
+                    ? $this->trans('Configured', array(), 'Modules.Lomi.Admin')
+                    : $this->trans('Missing — add your test or live secret key below.', array(), 'Modules.Lomi.Admin'),
+            ),
+            array(
+                'label' => $this->trans('Webhook signing secret', array(), 'Modules.Lomi.Admin'),
+                'status' => $webhookSecret !== '' ? 'ok' : 'warning',
+                'message' => $webhookSecret !== ''
+                    ? $this->trans('Configured', array(), 'Modules.Lomi.Admin')
+                    : $this->trans('Recommended — required to verify PAYMENT_SUCCEEDED and REFUND_COMPLETED webhooks.', array(), 'Modules.Lomi.Admin'),
+            ),
+            array(
+                'label' => $this->trans('Store currency', array(), 'Modules.Lomi.Admin'),
+                'status' => in_array($currencyIso, $allowedCurrencies, true) ? 'ok' : 'error',
+                'message' => in_array($currencyIso, $allowedCurrencies, true)
+                    ? $currencyIso
+                    : $this->trans('Must be XOF, USD, or EUR.', array(), 'Modules.Lomi.Admin'),
+            ),
+            array(
+                'label' => $this->trans('HTTPS', array(), 'Modules.Lomi.Admin'),
+                'status' => $isHttps ? 'ok' : 'warning',
+                'message' => $isHttps
+                    ? $this->trans('Enabled', array(), 'Modules.Lomi.Admin')
+                    : $this->trans('Not detected — use HTTPS in production.', array(), 'Modules.Lomi.Admin'),
+            ),
+            array(
+                'label' => $this->trans('Test mode', array(), 'Modules.Lomi.Admin'),
+                'status' => $testMode ? 'warning' : 'ok',
+                'message' => $testMode
+                    ? $this->trans('Sandbox API active', array(), 'Modules.Lomi.Admin')
+                    : $this->trans('Live API active', array(), 'Modules.Lomi.Admin'),
+            ),
+            array(
+                'label' => $this->trans('Webhook URL', array(), 'Modules.Lomi.Admin'),
+                'status' => 'ok',
+                'message' => $this->trans('Copy the URL below into Dashboard → Webhooks.', array(), 'Modules.Lomi.Admin'),
+            ),
+        );
+
+        if ($secret !== '') {
+            $connection = $this->getApiClient()->getMe();
+            $checks[] = array(
+                'label' => $this->trans('API connection', array(), 'Modules.Lomi.Admin'),
+                'status' => !empty($connection['ok']) ? 'ok' : 'error',
+                'message' => !empty($connection['ok'])
+                    ? $this->trans('GET /me succeeded', array(), 'Modules.Lomi.Admin')
+                    : (isset($connection['error']) ? (string) $connection['error'] : $this->trans('Could not reach lomi. API.', array(), 'Modules.Lomi.Admin')),
+            );
+        }
+
+        return $checks;
     }
 
     public function hookPaymentOptions($params)
